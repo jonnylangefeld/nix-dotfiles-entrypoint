@@ -1,16 +1,18 @@
 {
-  description = "A very basic flake";
+  description = "Example flake that prints output";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system: {
-    packages = {
-      hello = nixpkgs.legacyPackages.${system}.hello;
-    };
-
-    defaultPackage = self.packages.${system}.hello;
-  });
+  outputs = { self, nixpkgs, flake-utils }: 
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs { inherit system; };
+    in {
+      defaultApp = {
+        type = "app";
+        program = "${pkgs.runtimeShell} -c 'echo Hello, World!'";
+      };
+    });
 }
